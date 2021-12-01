@@ -38,10 +38,8 @@ func TestMeasureIncrementsFromInput(t *testing.T) {
 		t.Errorf("Couldn't read contents of input.txt")
 	}
 
-	inputStrings := strings.Split(string(file), "\n")
-	inputStrings = inputStrings[:len(inputStrings)-1]
+	inputStrings := strings.Split(strings.TrimSpace(string(file)), "\n")
 	input := make([]int, 0)
-
 	for _, v := range inputStrings {
 		digit, err := strconv.Atoi(v)
 		if err != nil {
