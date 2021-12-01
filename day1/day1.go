@@ -7,21 +7,11 @@ func MeasureIncrements(in []int) int {
 		return 0
 	}
 
-	windowsCount := len(in) - 2
 	count := 0
-	prevSum := 0
-	sum := 0
-	for w := 0; w < windowsCount; w++ {
-		for i := w; i < w+3; i++ {
-			sum += in[i]
-		}
-
-		if prevSum > 0 && prevSum < sum {
+	for i := 3; i < len(in); i++ {
+		if in[i-3] < in[i] {
 			count++
 		}
-
-		prevSum = sum
-		sum = 0
 	}
 
 	return count
