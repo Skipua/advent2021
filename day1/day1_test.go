@@ -18,10 +18,10 @@ func TestMeasureIncrements(t *testing.T) {
 	}{
 		{"empty", args{[]int{}}, 0},
 		{"single", args{[]int{1}}, 0},
-		{"two", args{[]int{1, 1}}, 0},
-		{"one increment", args{[]int{1, 2}}, 1},
-		{"two increments", args{[]int{1, 2, 3}}, 2},
-		{"two increments", args{[]int{1, 2, 3, 2, 3}}, 3},
+		{"two", args{[]int{1, 2}}, 0},
+		{"three", args{[]int{1, 2, 3}}, 0},
+		{"fourd groups", args{[]int{1, 2, 3, 4}}, 1}, // 1 + 2 + 3 < 2 + 3 + 4
+		{"sliding", args{[]int{199, 200, 208, 210, 200, 207, 240, 269, 260, 263}}, 5},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
