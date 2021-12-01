@@ -2,6 +2,7 @@ package day1
 
 const minCountOfDigits = 4
 
+//https://adventofcode.com/2021/day/1
 func MeasureIncrements(in []int) int {
 	if len(in) < minCountOfDigits {
 		return 0
