@@ -6,12 +6,13 @@ import (
 )
 
 type Submarine struct {
-	pos   int
+	hPos  int
 	depth int
+	aim   int
 }
 
 func NewSubmarine() *Submarine {
-	return &Submarine{0, 0}
+	return &Submarine{0, 0, 0}
 }
 
 func (s *Submarine) Steer(command string) {
@@ -20,14 +21,15 @@ func (s *Submarine) Steer(command string) {
 	x, _ := strconv.Atoi(commandSplitted[1])
 	switch direction {
 	case "forward":
-		s.pos += x
-	case "down":
-		s.depth += x
+		s.hPos += x
+		s.depth += s.aim * x
 	case "up":
-		s.depth -= x
+		s.aim -= x
+	case "down":
+		s.aim += x
 	}
 }
 
 func (s Submarine) Result() int {
-	return s.pos * s.depth
+	return s.hPos * s.depth
 }
