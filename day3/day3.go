@@ -1,32 +1,46 @@
 package day3
 
 import (
-	"math"
 	"strconv"
 )
 
 func PowerConsumption(input []string) int {
-	total := len(input)
-	bitSize := len(input[0])
-	gammaStr := ""
+	oxy := findMostOrLeastCommon(0, input, true)
+	co2 := findMostOrLeastCommon(0, input, false)
+	return toInt(oxy) * toInt(co2)
+}
 
-	for i := 0; i < bitSize; i++ {
-		num := 0
+func findMostOrLeastCommon(idx int, input []string, mostCommon bool) string {
+	if len(input) == 1 {
+		return input[0]
+	} else {
+		mostCommonBit := mostCommonBitAt(input, idx)
+		newInput := make([]string, 0)
 		for _, v := range input {
-			bit, _ := strconv.Atoi(string(v[i]))
-			num += bit
+			if mostCommon && string(v[idx]) == strconv.Itoa(mostCommonBit) {
+				newInput = append(newInput, v)
+			} else if !mostCommon && string(v[idx]) == strconv.Itoa(1-mostCommonBit) {
+				newInput = append(newInput, v)
+			}
 		}
+		idx++
+		return findMostOrLeastCommon(idx, newInput, mostCommon)
+	}
+}
 
-		if num >= total/2 {
-			gammaStr += "1"
-		} else {
-			gammaStr += "0"
-		}
+func mostCommonBitAt(input []string, idx int) int {
+	num := 0
+	for _, v := range input {
+		bit, _ := strconv.Atoi(string(v[idx]))
+		num += bit
 	}
 
-	gamma := toInt(gammaStr)
-	epsilon := gamma ^ (int(math.Pow(2, float64(bitSize))) - 1)
-	return gamma * epsilon
+	half := float64(len(input)) / 2.0
+	if float64(num) >= half {
+		return 1
+	} else {
+		return 0
+	}
 }
 
 func toInt(strBits string) int {

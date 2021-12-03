@@ -24,7 +24,7 @@ func Test(t *testing.T) {
 
 	got := PowerConsumption(input)
 
-	expected := 198
+	expected := 230
 	if got != expected {
 		t.Errorf("Expected %v, got: %v", expected, got)
 	}
@@ -39,9 +39,10 @@ func TestPowerConsumptionFromInput(t *testing.T) {
 	input := strings.Split(strings.TrimSpace(string(file)), "\n")
 
 	got := PowerConsumption(input)
-	t.Logf("Power Consumption: %v", got) // 2724524 part 1
+	t.Logf("Power Consumption: %v", got)
 
-	if got != 2724524 {
-		t.Errorf("Part1 Wrong! got: %v, should: %v", got, 2724524)
+	want := 2775870 // 2724524 part 1
+	if got != want {
+		t.Errorf("Part1 Wrong! got: %v, should: %v", got, want)
 	}
 }
