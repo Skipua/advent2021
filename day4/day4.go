@@ -1,17 +1,21 @@
 package day4
 
 type Bingo struct {
-	boards []Board
+	boards         []*Board
+	wonBoardsCount int
+	lastWonBoard   Board
 }
 
 type Board struct {
 	matrix  [][]int
 	visited [][]bool
+	won     bool
 }
 
 func NewBingo() *Bingo {
-	boards := make([]Board, 0)
-	return &Bingo{boards}
+	var empty Board
+	boards := make([]*Board, 0)
+	return &Bingo{boards, 0, empty}
 }
 
 func NewBoard(size int) *Board {
@@ -21,16 +25,22 @@ func NewBoard(size int) *Board {
 		matrix[i] = make([]int, size)
 		visited[i] = make([]bool, size)
 	}
-	return &Board{matrix, visited}
+	return &Board{matrix, visited, false}
+}
+
+func (bingo *Bingo) WonBoardsCount() int {
+	return bingo.wonBoardsCount
+}
+
+func (bingo *Bingo) BoardsCount() int {
+	return len(bingo.boards)
 }
 
 func (board *Board) PopulateRow(row int, values []int) {
-	for i, v := range values {
-		board.matrix[row][i] = v
-	}
+	copy(board.matrix[row], values)
 }
 
-func (bingo *Bingo) AddBoard(b Board) {
+func (bingo *Bingo) AddBoard(b *Board) {
 	bingo.boards = append(bingo.boards, b)
 }
 
@@ -50,20 +60,11 @@ func (board *Board) Mark(number int) (int, int, bool) {
 	return 0, 0, false
 }
 
-func (board *Board) IsBingo(row int, col int) (Board, bool) {
-	var noBoard Board
-	allRowVisited := true
-	for _, visited := range board.visited[row] {
-		if !visited {
-			allRowVisited = false
-			break
-		}
-	}
+func (board *Board) IsBingo(row int, col int) bool {
+	return board.allRowVisited(row) || board.allColumnVisited(col)
+}
 
-	if allRowVisited {
-		return *board, true
-	}
-
+func (board *Board) allColumnVisited(col int) bool {
 	allColVisited := true
 	for i := 0; i < len(board.visited); i++ {
 		if !board.visited[i][col] {
@@ -71,12 +72,18 @@ func (board *Board) IsBingo(row int, col int) (Board, bool) {
 			break
 		}
 	}
+	return allColVisited
+}
 
-	if allColVisited {
-		return *board, true
+func (board *Board) allRowVisited(row int) bool {
+	allRowVisited := true
+	for _, visited := range board.visited[row] {
+		if !visited {
+			allRowVisited = false
+			break
+		}
 	}
-
-	return noBoard, false
+	return allRowVisited
 }
 
 func (board *Board) SumNotVisited() int {
@@ -91,17 +98,16 @@ func (board *Board) SumNotVisited() int {
 	return sum
 }
 
-func (bingo *Bingo) NextNumber(number int) (Board, bool) {
-	var winningBoard Board
+func (bingo *Bingo) NextNumber(number int) {
 	for _, b := range bingo.boards {
 		row, col, marked := b.Mark(number)
-		if !marked {
+		if !marked || b.won {
 			continue
 		}
-		if winningBoard, isBingo := b.IsBingo(row, col); isBingo {
-			return winningBoard, true
+		if b.IsBingo(row, col) {
+			b.won = true
+			bingo.wonBoardsCount++
+			bingo.lastWonBoard = *b
 		}
-
 	}
-	return winningBoard, false
 }

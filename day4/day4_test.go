@@ -37,7 +37,7 @@ func TestFromInput(t *testing.T) {
 		board.PopulateRow(row, numbersInRow)
 		row++
 		if row == 5 {
-			bingo.AddBoard(*board)
+			bingo.AddBoard(board)
 		}
 	}
 
@@ -45,18 +45,21 @@ func TestFromInput(t *testing.T) {
 	for _, v := range drawnNumbers {
 		num, _ := strconv.Atoi(v)
 
-		board, isBingo := bingo.NextNumber(num)
+		bingo.NextNumber(num)
 
-		if isBingo {
-			t.Logf("Bingo for board: %v", board)
-			got = board.SumNotVisited() * num
+		if bingo.WonBoardsCount() == bingo.BoardsCount() {
+			lastWinningBoard := bingo.lastWonBoard
+			t.Logf("Last winning board: %v", lastWinningBoard)
+			got = lastWinningBoard.SumNotVisited() * num
 			break
 		}
 	}
 
-	t.Logf("We have a winning board with Result: %v", got)
+	t.Logf("Result: %v", got)
 
-	want := 38913
+	//part 1
+	//want := 38913
+	want := 16836
 	if got != want {
 		t.Errorf("Wrong! got: %v, should: %v", got, want)
 	}
