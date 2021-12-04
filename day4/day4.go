@@ -36,19 +36,41 @@ func (bingo *Bingo) BoardsCount() int {
 	return len(bingo.boards)
 }
 
-func (board *Board) PopulateRow(row int, values []int) {
-	copy(board.matrix[row], values)
-}
-
 func (bingo *Bingo) AddBoard(b *Board) {
 	bingo.boards = append(bingo.boards, b)
 }
 
-func (bingo *Bingo) Result() (int, bool) {
-	return 0, false
+func (board *Board) PopulateRow(row int, values []int) {
+	copy(board.matrix[row], values)
 }
 
-func (board *Board) Mark(number int) (int, int, bool) {
+func (bingo *Bingo) NextNumber(number int) {
+	for _, b := range bingo.boards {
+		row, col, marked := b.mark(number)
+		if !marked || b.won {
+			continue
+		}
+		if b.isBingo(row, col) {
+			b.won = true
+			bingo.wonBoardsCount++
+			bingo.lastWonBoard = *b
+		}
+	}
+}
+
+func (board *Board) SumNotVisited() int {
+	sum := 0
+	for r, row := range board.visited {
+		for c, v := range row {
+			if !v {
+				sum += board.matrix[r][c]
+			}
+		}
+	}
+	return sum
+}
+
+func (board *Board) mark(number int) (int, int, bool) {
 	for rowIdx, row := range board.matrix {
 		for colIdx, v := range row {
 			if v == number {
@@ -60,7 +82,7 @@ func (board *Board) Mark(number int) (int, int, bool) {
 	return 0, 0, false
 }
 
-func (board *Board) IsBingo(row int, col int) bool {
+func (board *Board) isBingo(row int, col int) bool {
 	return board.allRowVisited(row) || board.allColumnVisited(col)
 }
 
@@ -84,30 +106,4 @@ func (board *Board) allRowVisited(row int) bool {
 		}
 	}
 	return allRowVisited
-}
-
-func (board *Board) SumNotVisited() int {
-	sum := 0
-	for r, row := range board.visited {
-		for c, v := range row {
-			if !v {
-				sum += board.matrix[r][c]
-			}
-		}
-	}
-	return sum
-}
-
-func (bingo *Bingo) NextNumber(number int) {
-	for _, b := range bingo.boards {
-		row, col, marked := b.Mark(number)
-		if !marked || b.won {
-			continue
-		}
-		if b.IsBingo(row, col) {
-			b.won = true
-			bingo.wonBoardsCount++
-			bingo.lastWonBoard = *b
-		}
-	}
 }
