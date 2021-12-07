@@ -25,8 +25,7 @@ func calcPopulation(days, state, population int) int {
 	}
 	if state == 0 {
 		p := calcPopulation(days-1, 6, population)
-		key := Key{days - 1, 6}
-		cache[key] = p
+		cache[Key{days - 1, 6}] = p
 		p2 := calcPopulation(days-1, 8, 1)
 		cache[Key{days - 1, 8}] = p2
 
