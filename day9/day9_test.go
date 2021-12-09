@@ -8,11 +8,11 @@ import (
 )
 
 func TestExample(t *testing.T) {
-	testInput(t, "example.txt", 15)
+	testInput(t, "example.txt", 1134)
 }
 
 func TestFromInput(t *testing.T) {
-	testInput(t, "input.txt", 0)
+	testInput(t, "input.txt", 1235430)
 }
 
 func testInput(t *testing.T, filename string, want int) {
