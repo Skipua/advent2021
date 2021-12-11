@@ -23,8 +23,8 @@ func NewP(i, j int) *P {
 	return &P{i, j, false}
 }
 
-func CountFlashes(in [][]int, steps int) int {
-	totalFlashes := 0
+func DetectAllFlashStep(in [][]int, steps int) int {
+	count := len(in) * len(in[0])
 	for step := 0; step < steps; step++ {
 		flashes := 0
 		flashed := make(map[P]struct{}, 0)
@@ -35,9 +35,11 @@ func CountFlashes(in [][]int, steps int) int {
 				flashes += doStep(in, visited, flashed, p)
 			}
 		}
-		totalFlashes += flashes
+		if flashes == count {
+			return step + 1
+		}
 	}
-	return totalFlashes
+	return 0
 }
 
 func doStep(in [][]int, visited map[*P]struct{}, flashed map[P]struct{}, p *P) int {
