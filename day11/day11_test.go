@@ -7,16 +7,12 @@ import (
 	"testing"
 )
 
-func TestFromExampleTenSteps(t *testing.T) {
-	testInput(t, "example.txt", 10, 204)
-}
-
 func TestFromExample100Steps(t *testing.T) {
-	testInput(t, "example.txt", 100, 1656)
+	testInput(t, "example.txt", 200, 195)
 }
 
 func TestFromInput(t *testing.T) {
-	testInput(t, "input.txt", 100, 1757)
+	testInput(t, "input.txt", 500, 0)
 }
 
 func testInput(t *testing.T, filename string, steps, want int) {
@@ -34,7 +30,7 @@ func testInput(t *testing.T, filename string, steps, want int) {
 			input[i] = append(input[i], num)
 		}
 	}
-	got := CountFlashes(input, steps)
+	got := DetectAllFlashStep(input, steps)
 	t.Logf("Result: %v", got)
 
 	if got != want {
