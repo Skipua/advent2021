@@ -12,7 +12,7 @@ func TestFromExample100Steps(t *testing.T) {
 }
 
 func TestFromInput(t *testing.T) {
-	testInput(t, "input.txt", 500, 0)
+	testInput(t, "input.txt", 500, 422)
 }
 
 func testInput(t *testing.T, filename string, steps, want int) {
