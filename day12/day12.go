@@ -6,12 +6,11 @@ import (
 
 type Caves struct {
 	caves map[string][]string
+	paths []string
 }
 
-var set = struct{}{}
-
 func NewCaves() *Caves {
-	return &Caves{make(map[string][]string, 0)}
+	return &Caves{make(map[string][]string, 0), make([]string, 0)}
 }
 
 func (c *Caves) AddPath(from, to string) {
@@ -25,61 +24,56 @@ func (c *Caves) AddPath(from, to string) {
 }
 
 func (c Caves) Paths() []string {
-	//paths := make([]string, 0)
-	markedPaths := make(map[string]struct{}, 0)
-	markedCaves := make(map[string]struct{}, 0)
-	res := make([]string, 0)
-
-	c.findPaths(&res, markedPaths, markedCaves, "start")
-	return res
+	c.findPaths("start")
+	return c.paths
 }
 
-func (c *Caves) findPaths(res *[]string, markedPath map[string]struct{}, markedCaves map[string]struct{}, path string) {
-	markedPath[path] = set
-
-	//fmt.Printf("Visiting: %v\n", path)
-
+func (c *Caves) findPaths(path string) {
 	caves := strings.Split(path, ",")
 	currCave := caves[len(caves)-1]
-	markedCaves[currCave] = set
 
 	if currCave == "end" {
-		//fmt.Printf("END: %v\n", path)
-		*res = append(*res, path)
-		//markedCaves = make(map[string]struct{}, 0)
-	} else if c.caves[currCave] == nil {
-		//fmt.Printf("DEAD: %v\n", path)
-		//markedCaves = make(map[string]struct{}, 0)
+		c.paths = append(c.paths, path)
 	}
 	for _, nextCave := range c.caves[currCave] {
 		nextPath := path + "," + nextCave
-		if !visitedTwice(nextPath, nextCave) {
-			_, pathVisited := markedPath[nextPath]
-			_, caveVisited := markedCaves[nextCave]
-			if !caveVisited || !pathVisited {
-				c.findPaths(res, markedPath, markedCaves, nextPath)
-			}
+		if validPath(nextPath) {
+			c.findPaths(nextPath)
 		}
 	}
 }
 
-func visitedTwice(path string, cave string) bool {
-	if strings.ToUpper(cave) == cave {
+func validPath(path string) bool {
+	countPerSmallCave := make(map[string]int, 0)
+	split := strings.Split(path, ",")
+	for _, c := range split {
+		if strings.ToUpper(c) == c {
+			continue
+		}
+
+		if _, ok := countPerSmallCave[c]; ok {
+			countPerSmallCave[c] += 1
+		} else {
+			countPerSmallCave[c] = 1
+		}
+	}
+
+	if countPerSmallCave["start"] == 2 || countPerSmallCave["end"] == 2 {
 		return false
 	}
-	split := strings.Split(path, ",")
-	count := 0
-	for _, p := range split {
-		if p == cave {
-			count++
+
+	countOfCavesVisitedTwice := 0
+	for k := range countPerSmallCave {
+		if countPerSmallCave[k] > 2 {
+			return false
 		}
 
-		if count > 1 {
-			return true
+		if countPerSmallCave[k] > 1 {
+			countOfCavesVisitedTwice++
 		}
 	}
 
-	return false
+	return countOfCavesVisitedTwice <= 1
 }
 
 func CountPaths(paths []string) int {

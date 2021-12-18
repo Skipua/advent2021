@@ -7,11 +7,11 @@ import (
 )
 
 func TestSmall(t *testing.T) {
-	testInput(t, "small-example.txt", 10)
+	testInput(t, "small-example.txt", 36)
 }
 
 func TestFromInput(t *testing.T) {
-	testInput(t, "input.txt", 4186)
+	testInput(t, "input.txt", 92111)
 }
 
 func testInput(t *testing.T, filename string, want int) {
