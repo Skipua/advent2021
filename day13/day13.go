@@ -2,58 +2,81 @@ package day13
 
 import (
 	"fmt"
-	"math/bits"
 	"strconv"
 	"strings"
 )
 
+const MAX_X = 895
+const MAX_Y = 1311
+
 type Paper struct {
-	paper []uint16
-	bits  int
+	paper [][]bool
 }
 
 type Dot struct {
-	x int
-	y int
+	x, y int
 }
 
-func NewPaper(n, bits int) *Paper {
-	paper := make([]uint16, n)
+func NewPaper() *Paper {
+	paper := make([][]bool, MAX_X)
 	for i := 0; i < len(paper); i++ {
-		paper[i] = 0
+		paper[i] = make([]bool, MAX_Y)
+		for j := 0; j < len(paper[i]); j++ {
+			paper[i][j] = false
+		}
 	}
-	return &Paper{paper, bits}
+	return &Paper{paper}
 }
 
 func (p *Paper) addDots(dots []Dot) {
 	for _, dot := range dots {
-		p.paper[dot.y] |= 1 << uint16(dot.x)
+		p.paper[dot.y][dot.x] = true
 	}
 }
 
 func (p *Paper) foldUp(y int) {
 	for i := 0; i < y; i++ {
-		p.paper[i] |= p.paper[len(p.paper)-1-i]
+		p.paper[i] = overlap(p.paper[i], p.paper[len(p.paper)-1-i])
 	}
 	p.paper = p.paper[:y]
 }
 
 func (p *Paper) foldLeft(x int) {
-	for i, v := range p.paper {
-		reversed := bits.Reverse16(v)
-		toShift := 16 - p.bits
-		mirrored := reversed >> toShift
-		p.paper[i] = (p.paper[i] | mirrored) >> (x + 1)
+	for i, row := range p.paper {
+		p.paper[i] = overlap(row[:x], reverse(row)[:x])
 	}
-	p.bits -= x + 1
+}
+
+func reverse(v []bool) []bool {
+	r := make([]bool, len(v))
+
+	for i := 0; i < len(v); i++ {
+		r[i] = v[len(v)-1-i]
+	}
+
+	return r
+}
+
+func overlap(a, b []bool) []bool {
+	res := make([]bool, len(a))
+	for i := 0; i < len(a); i++ {
+		res[i] = a[i] || b[i]
+	}
+	return res
 }
 
 func (p Paper) String() string {
 	str := ""
 
-	for _, num := range p.paper {
-		formatUint := strconv.FormatUint(uint64(num), 2)
-		str += strings.Repeat("0", p.bits-len(formatUint)) + formatUint + "\n"
+	for _, row := range p.paper {
+		for _, v := range row {
+			if v {
+				str += "⬜"
+			} else {
+				str += "⬛"
+			}
+		}
+		str += "\n"
 	}
 
 	return str
@@ -62,8 +85,12 @@ func (p Paper) String() string {
 func (p Paper) countDots() int {
 	count := 0
 
-	for _, v := range p.paper {
-		count += bits.OnesCount16(v)
+	for _, row := range p.paper {
+		for _, v := range row {
+			if v {
+				count++
+			}
+		}
 	}
 
 	return count
@@ -71,50 +98,22 @@ func (p Paper) countDots() int {
 
 func CountFolds(rawDots, rawFolds []string) int {
 	dots := toListOfDots(rawDots)
-	paper := NewPaper(maxY(dots)+1, maxX(dots)+1)
+
+	paper := NewPaper()
 	paper.addDots(dots)
 
-	for i, f := range rawFolds {
-		xOrY, index := parseFold(f)
+	for _, f := range rawFolds {
+		axis, index := parseFold(f)
 
-		fmt.Println(paper)
-		if xOrY == "y" {
+		if axis == "y" {
 			paper.foldUp(index)
 		} else {
 			paper.foldLeft(index)
 		}
-
-		fmt.Printf("AFTER %v=%v %v\n", xOrY, index, i+1)
-		fmt.Printf("COUNT AFTER %v: %v\n", i+1, paper.countDots())
-
-		fmt.Println(paper)
 	}
 
+	fmt.Println(paper)
 	return paper.countDots()
-}
-
-func maxX(dots []Dot) int {
-	max := dots[0].x
-
-	for i := 1; i < len(dots); i++ {
-		if max < dots[i].x {
-			max = dots[i].x
-		}
-	}
-
-	return max
-}
-
-func maxY(dots []Dot) int {
-	max := dots[0].y
-
-	for i := 1; i < len(dots); i++ {
-		if max < dots[i].y {
-			max = dots[i].y
-		}
-	}
-
-	return max
 }
 
 func toListOfDots(rawDots []string) []Dot {
