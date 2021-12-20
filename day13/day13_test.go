@@ -10,10 +10,6 @@ func TestExample(t *testing.T) {
 	testInput(t, "example.txt", 16)
 }
 
-func TestExampleByX(t *testing.T) {
-	testInput(t, "example-by-x.txt", 17)
-}
-
 func TestInput(t *testing.T) {
 	testInput(t, "input.txt", 17)
 }
