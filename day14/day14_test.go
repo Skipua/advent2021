@@ -7,7 +7,11 @@ import (
 )
 
 func TestExample(t *testing.T) {
-	testInput(t, "example.txt", 10, 1588)
+	//testInput(t, "example.txt", 1, 1)
+	//testInput(t, "example.txt", 2, 5)
+	//testInput(t, "example.txt", 3, 7)
+	testInput(t, "example.txt", 4, 18)
+	//testInput(t, "example.txt", 10, 1588)
 }
 
 func TestInputPart1(t *testing.T) {

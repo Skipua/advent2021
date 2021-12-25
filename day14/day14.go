@@ -9,53 +9,75 @@ import (
 func DoPoly(template string, polyInstructions []string, steps int) int {
 	rules := parseRules(polyInstructions)
 
-	finalTemplate := ""
+	result := make(map[string]int, 0)
 	split := strings.Split(template, "")
-	memo := make(map[string]string, 0)
+	memo := make(map[string]map[string]int, 0)
 	for i := 0; i < len(split)-1; i++ {
 		next := poly(split[i], split[i+1], rules, steps, memo)
 		if i == 0 {
-			finalTemplate += next
+			result = merge(result, next)
 		} else {
-			finalTemplate += strings.TrimPrefix(next, split[i])
+			next[split[i]] -= 1
+			result = merge(result, next)
 		}
 	}
 
-	return countMaxMinusMin(finalTemplate)
+	return countMaxMinusMin(result)
 }
 
-func poly(p1, p2 string, rules map[string]string, steps int, memo map[string]string) string {
+func poly(p1, p2 string, rules map[string]string, steps int, memo map[string]map[string]int) map[string]int {
 	key := p1 + p2 + strconv.Itoa(steps)
-	newToken := rules[p1+p2]
-
 	if v, ok := memo[key]; ok {
 		return v
 	}
 
+	nextMiddle := rules[p1+p2]
 	if steps == 1 {
-		return p1 + newToken + p2
+		m := map[string]int{p1: 1}
+		addOrIncrement(m, p2)
+		addOrIncrement(m, nextMiddle)
+		return m
 	} else {
-		next := poly(p1, newToken, rules, steps-1, memo) + strings.TrimPrefix(poly(newToken, p2, rules, steps-1, memo), newToken)
-		memo[key] = next
-		return next
+		next1 := poly(p1, nextMiddle, rules, steps-1, memo)
+		next2 := poly(nextMiddle, p2, rules, steps-1, memo)
+		next2[nextMiddle] -= 1
+		memo[key] = merge(next1, next2)
+		return memo[key]
 	}
 }
 
-func countMaxMinusMin(template string) int {
-	max := 0
-	min := math.MaxInt
+func addOrIncrement(m map[string]int, token string) {
+	if _, ok := m[token]; ok {
+		m[token] += 1
+	} else {
+		m[token] = 1
+	}
+}
 
-	m := make(map[string]int, 0)
-	for _, v := range strings.Split(template, "") {
-		if _, ok := m[v]; ok {
-			m[v] += 1
+func merge(m1 map[string]int, m2 map[string]int) map[string]int {
+	newM := make(map[string]int, 0)
+
+	for k := range m1 {
+		newM[k] = m1[k]
+	}
+
+	for k := range m2 {
+		if _, ok := newM[k]; ok {
+			newM[k] += m2[k]
 		} else {
-			m[v] = 1
+			newM[k] = m2[k]
 		}
 	}
 
-	for k := range m {
-		count := m[k]
+	return newM
+}
+
+func countMaxMinusMin(result map[string]int) int {
+	max := 0
+	min := math.MaxInt
+
+	for k := range result {
+		count := result[k]
 		if max < count {
 			max = count
 		}
