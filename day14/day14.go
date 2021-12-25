@@ -2,6 +2,7 @@ package day14
 
 import (
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -10,8 +11,9 @@ func DoPoly(template string, polyInstructions []string, steps int) int {
 
 	finalTemplate := ""
 	split := strings.Split(template, "")
+	memo := make(map[string]string, 0)
 	for i := 0; i < len(split)-1; i++ {
-		next := poly(split[i], split[i+1], rules, steps)
+		next := poly(split[i], split[i+1], rules, steps, memo)
 		if i == 0 {
 			finalTemplate += next
 		} else {
@@ -22,12 +24,20 @@ func DoPoly(template string, polyInstructions []string, steps int) int {
 	return countMaxMinusMin(finalTemplate)
 }
 
-func poly(p1, p2 string, rules map[string]string, steps int) string {
-	if steps == 0 {
-		return p1 + p2
+func poly(p1, p2 string, rules map[string]string, steps int, memo map[string]string) string {
+	key := p1 + p2 + strconv.Itoa(steps)
+	newToken := rules[p1+p2]
+
+	if v, ok := memo[key]; ok {
+		return v
+	}
+
+	if steps == 1 {
+		return p1 + newToken + p2
 	} else {
-		newToken := rules[p1+p2]
-		return poly(p1, newToken, rules, steps-1) + strings.TrimPrefix(poly(newToken, p2, rules, steps-1), newToken)
+		next := poly(p1, newToken, rules, steps-1, memo) + strings.TrimPrefix(poly(newToken, p2, rules, steps-1, memo), newToken)
+		memo[key] = next
+		return next
 	}
 }
 

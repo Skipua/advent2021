@@ -15,7 +15,7 @@ func TestInputPart1(t *testing.T) {
 }
 
 func TestInputPart2(t *testing.T) {
-	testInput(t, "input.txt", 40, 2408)
+	testInput(t, "input.txt", 40, 0)
 }
 
 func testInput(t *testing.T, filename string, steps, want int) {
